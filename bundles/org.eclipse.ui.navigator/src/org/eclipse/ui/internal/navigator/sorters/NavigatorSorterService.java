@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.ui.internal.navigator.NavigatorContentService;
 import org.eclipse.ui.internal.navigator.VisibilityAssistant.VisibilityListener;
@@ -66,10 +67,22 @@ public class NavigatorSorterService implements INavigatorSorterService, Visibili
 	}
 
 	@Override
+	@Deprecated(forRemoval = true, since = "2025-03")
 	public ViewerSorter findSorterForParent(Object aParent) {
 
 		CommonSorterDescriptor[] descriptors = CommonSorterDescriptorManager
 				.getInstance().findApplicableSorters(contentService, aParent);
+		if (descriptors.length > 0) {
+			return getSorter(descriptors[0]);
+		}
+		return SkeletonViewerSorter.INSTANCE;
+	}
+
+	@Override
+	public ViewerComparator findComparatorForParent(Object aParent) {
+
+		CommonSorterDescriptor[] descriptors = CommonSorterDescriptorManager.getInstance()
+				.findApplicableSorters(contentService, aParent);
 		if (descriptors.length > 0) {
 			return getSorter(descriptors[0]);
 		}
@@ -88,6 +101,7 @@ public class NavigatorSorterService implements INavigatorSorterService, Visibili
 	}
 
 	@Override
+	@Deprecated(forRemoval = true, since = "2025-03")
 	public synchronized ViewerSorter findSorter(INavigatorContentDescriptor source,
 			Object parent, Object lvalue, Object rvalue) {
 
@@ -119,10 +133,41 @@ public class NavigatorSorterService implements INavigatorSorterService, Visibili
 	}
 
 	@Override
-	public Map findAvailableSorters(INavigatorContentDescriptor theSource) {
+	public synchronized ViewerComparator findComparator(INavigatorContentDescriptor source, Object parent,
+			Object lvalue,
+			Object rvalue) {
+
+		CommonSorterDescriptorManager dm = CommonSorterDescriptorManager.getInstance();
+		CommonSorterDescriptor[] descriptors;
+
+		INavigatorContentDescriptor lookupDesc;
+		for (int i = 0; i < sortOnlyDescriptors.length; i++) {
+			lookupDesc = sortOnlyDescriptors[i];
+			if (source != null && source.getSequenceNumber() < lookupDesc.getSequenceNumber()) {
+				lookupDesc = source;
+				source = null;
+				i--;
+			}
+			descriptors = dm.findApplicableSorters(contentService, lookupDesc, parent);
+			if (descriptors.length > 0) {
+				return getSorter(descriptors[0]);
+			}
+		}
+
+		if (source != null) {
+			descriptors = dm.findApplicableSorters(contentService, source, parent);
+			if (descriptors.length > 0) {
+				return getSorter(descriptors[0]);
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public Map<String, ViewerComparator> findAvailableSorters(INavigatorContentDescriptor theSource) {
 
 		CommonSorterDescriptor[] descriptors = CommonSorterDescriptorManager.getInstance().findApplicableSorters(theSource);
-		Map<String, ViewerSorter> sorters = new HashMap<>();
+		Map<String, ViewerComparator> sorters = new HashMap<>();
 
 		int count = 0;
 		for (CommonSorterDescriptor descriptor : descriptors) {

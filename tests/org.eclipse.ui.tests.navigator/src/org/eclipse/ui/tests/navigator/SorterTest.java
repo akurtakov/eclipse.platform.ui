@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2023 Oakland Software Incorporated and others.
+ * Copyright (c) 2008, 2025 Oakland Software Incorporated and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -131,7 +131,7 @@ public class SorterTest extends NavigatorTestBase {
 
 		// Make it sort backwards so we can tell
 		TestSorterResource sorter = (TestSorterResource) _contentService
-			.getSorterService().findSorter(desc, _project, null, null);
+				.getSorterService().findComparator(desc, _project, null, null);
 		sorter._forward = false;
 
 		_contentService.bindExtensions(
@@ -258,7 +258,7 @@ public class SorterTest extends NavigatorTestBase {
 
 		// Make it sort backwards so we can tell
 		TestSorterDataAndResource sorter = (TestSorterDataAndResource) _contentService
-				.getSorterService().findSorter(desc, _project, null, null);
+				.getSorterService().findComparator(desc, _project, null, null);
 		sorter._forward = false;
 
 		_viewer.setExpandedState(_project,	true);
@@ -326,7 +326,7 @@ public class SorterTest extends NavigatorTestBase {
 
 		INavigatorContentDescriptor desc = _contentService.getContentDescriptorById(TEST_CONTENT_COMPARATOR_MODEL);
 
-		ViewerComparator sorter = _contentService.getSorterService().findSorter(desc, _project, null, null);
+		ViewerComparator sorter = _contentService.getSorterService().findComparator(desc, _project, null, null);
 		assertNotNull(sorter);
 		WrappedViewerComparator wrapper = (WrappedViewerComparator) sorter;
 		TestComparatorData original = (TestComparatorData) wrapper.getWrappedComparator();
@@ -423,7 +423,7 @@ public class SorterTest extends NavigatorTestBase {
 				.getContentDescriptorById(TEST_CONTENT_SORTER_RESOURCE);
 
 		TestSorterResource sorter = (TestSorterResource) _contentService
-				.getSorterService().findSorter(desc, _p2, null, null);
+				.getSorterService().findComparator(desc, _p2, null, null);
 		sorter._forward = false;
 
 		IStructuredSelection sel;
