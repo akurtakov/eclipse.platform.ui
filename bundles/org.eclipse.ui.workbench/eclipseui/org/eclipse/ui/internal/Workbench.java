@@ -26,8 +26,7 @@
 
 package org.eclipse.ui.internal;
 
-import com.ibm.icu.util.ULocale;
-import com.ibm.icu.util.ULocale.Category;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,6 +46,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -586,8 +586,8 @@ public final class Workbench extends EventManager implements IWorkbench, org.ecl
 
 			final String nlExtensions = Platform.getNLExtensions();
 			if (nlExtensions.length() > 0) {
-				ULocale.setDefault(Category.FORMAT,
-						new ULocale(ULocale.getDefault(Category.FORMAT).getBaseName() + nlExtensions));
+				Locale.setDefault(Locale.Category.FORMAT,
+						createLocaleFromName(Locale.getDefault(Locale.Category.FORMAT).toString() + nlExtensions));
 			}
 
 			System.setProperty(org.eclipse.e4.ui.workbench.IWorkbench.XMI_URI_ARG,
@@ -1903,9 +1903,29 @@ public final class Workbench extends EventManager implements IWorkbench, org.ecl
 		IPreferenceStore store = WorkbenchPlugin.getDefault().getPreferenceStore();
 		if (!store.isDefault(IPreferenceConstants.NL_EXTENSIONS)) {
 			String nlExtensions = store.getString(IPreferenceConstants.NL_EXTENSIONS);
-			ULocale.setDefault(Category.FORMAT,
-					new ULocale(ULocale.getDefault(Category.FORMAT).getBaseName() + nlExtensions));
+			Locale.setDefault(Locale.Category.FORMAT,
+					createLocaleFromName(Locale.getDefault(Locale.Category.FORMAT).toString() + nlExtensions));
 		}
+	}
+
+	/**
+	 * Creates a Locale from a locale name string.
+	 * This is similar to ICU4J's ULocale(String) constructor.
+	 *
+	 * @param localeName locale name in the format "language_country_variant"
+	 * @return the constructed Locale
+	 */
+	private static Locale createLocaleFromName(String localeName) {
+		if (localeName == null || localeName.isEmpty()) {
+			return Locale.getDefault();
+		}
+
+		String[] parts = localeName.split("_", 3); //$NON-NLS-1$
+		String language = parts.length > 0 ? parts[0] : ""; //$NON-NLS-1$
+		String country = parts.length > 1 ? parts[1] : ""; //$NON-NLS-1$
+		String variant = parts.length > 2 ? parts[2] : ""; //$NON-NLS-1$
+
+		return new Locale(language, country, variant);
 	}
 
 	/*
