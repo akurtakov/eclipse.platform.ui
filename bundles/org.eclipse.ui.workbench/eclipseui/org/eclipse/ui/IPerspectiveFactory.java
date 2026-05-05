@@ -46,6 +46,12 @@ package org.eclipse.ui;
  * &lt;/extension&gt;
  * </pre>
  * <p>
+ * The <code>class</code> attribute is optional. When omitted, the perspective
+ * starts with the default layout (editor area only). Additional views can still
+ * be contributed via the <code>org.eclipse.ui.perspectiveExtensions</code>
+ * extension point or model fragments.
+ * </p>
+ * <p>
  * Example of populating a page with standard workbench views:
  * </p>
  *

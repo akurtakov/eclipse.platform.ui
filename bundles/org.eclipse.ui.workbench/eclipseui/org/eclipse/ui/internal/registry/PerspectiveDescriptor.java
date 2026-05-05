@@ -74,6 +74,12 @@ public class PerspectiveDescriptor implements IPerspectiveDescriptor, IPluginCon
 	}
 
 	public IPerspectiveFactory createFactory() {
+		String className = configElement.getAttribute(IWorkbenchRegistryConstants.ATT_CLASS);
+		if (className == null || className.isEmpty()) {
+			return layout -> {
+				// no-op: perspective uses default layout (editor area only)
+			};
+		}
 		try {
 			return (IPerspectiveFactory) configElement.createExecutableExtension(IWorkbenchRegistryConstants.ATT_CLASS);
 		} catch (CoreException e) {

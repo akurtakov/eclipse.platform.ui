@@ -74,11 +74,14 @@
                </appInfo>
             </annotation>
          </attribute>
-         <attribute name="class" type="string" use="required">
+         <attribute name="class" type="string">
             <annotation>
                <documentation>
                   a fully qualified name of the class that implements 
 &lt;samp&gt;org.eclipse.ui.IPerspectiveFactory&lt;/samp&gt; interface.
+This attribute is optional. When omitted, the perspective starts with the default layout
+(editor area only). Additional views can still be contributed via the
+&lt;samp&gt;org.eclipse.ui.perspectiveExtensions&lt;/samp&gt; extension point or model fragments.
                </documentation>
                <appInfo>
                   <meta.attribute kind="java" basedOn="org.eclipse.ui.IPerspectiveFactory"/>
