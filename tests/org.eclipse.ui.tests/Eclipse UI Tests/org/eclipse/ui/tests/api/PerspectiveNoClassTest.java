@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.ILogListener;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.e4.ui.workbench.modeling.EPartService;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -95,28 +96,43 @@ public class PerspectiveNoClassTest {
 	}
 
 	/**
-	 * Verifies that opening an e4 perspective (defined as a model snippet in
-	 * fragment.e4xmi, without a 3.x extension-point registration) does NOT produce
-	 * a "local copy" log message.
+	 * Verifies that switching to an e4 perspective (defined as a model snippet in
+	 * fragment.e4xmi, without a 3.x extension-point registration) via
+	 * {@link EPartService#switchPerspective(String)} does NOT produce a "local
+	 * copy" log message.
 	 *
 	 * <p>Before the fix, the {@code WorkbenchPage.fixOrphanPerspective()} method
 	 * was called for such perspectives because their descriptor could not be found
 	 * in the registry, causing an INFO log entry of the form
 	 * {@code "Perspective with name '...' and id '...' has been made into a local copy"}.
+	 * The log is only emitted when {@code EPartService.switchPerspective} is called
+	 * (i.e. when the workbench selection handler fires on a perspective-stack
+	 * selection change).
 	 */
 	@Test
 	public void testE4PerspectiveDoesNotLogLocalCopy() throws WorkbenchException {
+		IWorkbenchWindow window = openTestWindow();
+
+		// Open the e4 perspective first so it is cloned from the snippet and added to
+		// the window's perspective stack.
+		PlatformUI.getWorkbench().showPerspective(E4_PERSP_ID, window);
+
+		// Switch to a different perspective so the e4 perspective is no longer active.
+		PlatformUI.getWorkbench().showPerspective(PERSP_ID, window);
+
+		// Now switch back via EPartService.switchPerspective — the code path that
+		// triggers WorkbenchPage.selectionHandler and the potential "local copy" log.
 		List<String> logMessages = new ArrayList<>();
 		ILogListener listener = (status, plugin) -> logMessages.add(status.getMessage());
 		Platform.addLogListener(listener);
 		try {
-			IWorkbenchWindow window = openTestWindow();
-			PlatformUI.getWorkbench().showPerspective(E4_PERSP_ID, window);
+			EPartService partService = window.getService(EPartService.class);
+			partService.switchPerspective(E4_PERSP_ID);
 		} finally {
 			Platform.removeLogListener(listener);
 		}
 		assertFalse(
 				logMessages.stream().anyMatch(msg -> msg != null && msg.contains("local copy")),
-				"Opening an e4 perspective should not produce a 'local copy' log message");
+				"Switching to an e4 perspective via EPartService should not produce a 'local copy' log message");
 	}
 }
