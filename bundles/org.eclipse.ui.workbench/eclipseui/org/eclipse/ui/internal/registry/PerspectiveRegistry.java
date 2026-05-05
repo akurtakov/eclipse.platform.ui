@@ -331,7 +331,7 @@ public class PerspectiveRegistry implements IPerspectiveRegistry, IExtensionChan
 					p.getContributorURI()));
 		}
 		int index = id.lastIndexOf('.');
-		// Custom perspectives store the user defined names in their labels
+		// Custom perspectives store the user defined names in their labels.
 		String trimE4 = label.trim();
 		String trimE3 = label.replace(' ', '_').trim();
 		if (id.endsWith(label)) {

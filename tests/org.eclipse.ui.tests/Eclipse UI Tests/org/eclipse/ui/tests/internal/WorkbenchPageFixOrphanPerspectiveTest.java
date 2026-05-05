@@ -160,4 +160,54 @@ public class WorkbenchPageFixOrphanPerspectiveTest {
 		// Cleanup
 		PlatformUI.getWorkbench().getPerspectiveRegistry().deletePerspective(descriptor);
 	}
+
+	/**
+	 * Verifies that {@code WorkbenchPage.fixOrphanPerspective} uses the
+	 * human-readable (localized) label when naming the local copy, so that users
+	 * never see a raw {@code %key} string as the perspective label.
+	 *
+	 * <p>
+	 * Perspectives whose {@code label} attribute in the model is a localization key
+	 * (starts with {@code %}) must have their translated name embedded in the copy
+	 * label, not the raw key.
+	 */
+	@Test
+	public void testFixOrphanPerspectiveUsesLocalizedLabel() {
+		IWorkbenchWindow window = openTestWindow();
+		WorkbenchWindow workbenchWindow = (WorkbenchWindow) window;
+
+		EModelService modelService = workbenchWindow.getService(EModelService.class);
+
+		List<MPerspectiveStack> stacks = modelService.findElements(workbenchWindow.getModel(), null,
+				MPerspectiveStack.class);
+		assertFalse(stacks.isEmpty(), "Perspective stack should exist in the window model");
+		MPerspectiveStack perspectiveStack = stacks.get(0);
+
+		String orphanId = "org.eclipse.ui.tests.internal.orphan.localized.perspective";
+
+		assertNull(PlatformUI.getWorkbench().getPerspectiveRegistry().findPerspectiveWithId(orphanId),
+				"Pre-condition: orphan ID must not be registered in the perspective registry");
+
+		// Simulate a localization-key label (starts with %) for the orphan perspective.
+		// No contributorURI → triggers the orphan/local-copy path.
+		String rawKey = "%orphanPerspectiveName"; //$NON-NLS-1$
+		MPerspective orphanPerspective = modelService.createModelElement(MPerspective.class);
+		orphanPerspective.setElementId(orphanId);
+		orphanPerspective.setLabel(rawKey);
+
+		perspectiveStack.getChildren().add(orphanPerspective);
+		perspectiveStack.setSelectedElement(orphanPerspective);
+		processEvents();
+
+		// Verify that the local copy's label does NOT start with '%'.
+		String newId = orphanPerspective.getElementId();
+		IPerspectiveDescriptor newDescriptor = PlatformUI.getWorkbench().getPerspectiveRegistry()
+				.findPerspectiveWithId(newId);
+		assertNotNull(newDescriptor, "A descriptor for the local copy must exist");
+		assertFalse(newDescriptor.getLabel().startsWith("%"), //$NON-NLS-1$
+				"The local copy label must not be a raw localization key (must not start with %)");
+
+		// Cleanup
+		PlatformUI.getWorkbench().getPerspectiveRegistry().deletePerspective(newDescriptor);
+	}
 }
