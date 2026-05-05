@@ -114,6 +114,18 @@ public class PerspectiveRegistry implements IPerspectiveRegistry, IExtensionChan
 		createDescriptor(perspective);
 	}
 
+	/**
+	 * Registers an E4 perspective that is contributed directly via the application
+	 * model (e.g. via a model fragment), without renaming it or marking it as a
+	 * local copy. Unlike {@link #addPerspective(MPerspective)}, this method does
+	 * not add the perspective to the application snippets.
+	 *
+	 * @param perspective the E4 perspective to register
+	 */
+	public void registerPerspective(MPerspective perspective) {
+		createDescriptor(perspective);
+	}
+
 	private void createDescriptor(MPerspective perspective) {
 		String label = perspective.getLocalizedLabel();
 		String originalId = getOriginalId(perspective);

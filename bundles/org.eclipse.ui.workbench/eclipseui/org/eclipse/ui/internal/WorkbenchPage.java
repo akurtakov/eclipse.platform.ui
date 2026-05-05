@@ -3908,8 +3908,19 @@ public class WorkbenchPage implements IWorkbenchPage {
 			PerspectiveDescriptor perspectiveDesc = (PerspectiveDescriptor) getPerspectiveDesc(
 					mperspective.getElementId());
 			if (perspectiveDesc == null) {
-				fixedPerspective = true;
-				perspectiveDesc = fixOrphanPerspective(mperspective);
+				if (mperspective.getContributorURI() != null) {
+					// E4 perspective contributed via the application model (e.g. model fragment).
+					// Register it directly with its original ID instead of converting it to an
+					// orphan local copy.
+					PerspectiveRegistry reg = (PerspectiveRegistry) PlatformUI.getWorkbench()
+							.getPerspectiveRegistry();
+					reg.registerPerspective(mperspective);
+					perspectiveDesc = (PerspectiveDescriptor) getPerspectiveDesc(mperspective.getElementId());
+					sortedPerspectives.add(perspectiveDesc);
+				} else {
+					fixedPerspective = true;
+					perspectiveDesc = fixOrphanPerspective(mperspective);
+				}
 			}
 			Perspective p = new Perspective(perspectiveDesc, mperspective, this);
 			modelToPerspectiveMapping.put(mperspective, p);
