@@ -186,6 +186,17 @@ public class PerspectiveRegistry implements IPerspectiveRegistry, IExtensionChan
 
 	public IPerspectiveDescriptor findPerspectiveWithId(String perspectiveId, boolean considerRestrictRules) {
 		IPerspectiveDescriptor candidate = descriptors.get(perspectiveId);
+		if (candidate == null) {
+			// The descriptor may be missing when a bundle contributes a model-snippet
+			// perspective (via fragment.e4xmi) and that bundle was activated after
+			// postConstruct already ran.  Register the descriptor lazily so the
+			// perspective is never mistakenly treated as an orphan.
+			MUIElement snippet = modelService.findSnippet(application, perspectiveId);
+			if (snippet instanceof MPerspective perspSnippet) {
+				createDescriptor(perspSnippet);
+				candidate = descriptors.get(perspectiveId);
+			}
+		}
 		if (considerRestrictRules && WorkbenchActivityHelper.restrictUseOf(candidate)) {
 			return null;
 		}

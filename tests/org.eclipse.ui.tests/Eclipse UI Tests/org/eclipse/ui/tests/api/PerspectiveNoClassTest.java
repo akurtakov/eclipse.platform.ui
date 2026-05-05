@@ -113,19 +113,21 @@ public class PerspectiveNoClassTest {
 	public void testE4PerspectiveDoesNotLogLocalCopy() throws WorkbenchException {
 		IWorkbenchWindow window = openTestWindow();
 
-		// Open the e4 perspective first so it is cloned from the snippet and added to
-		// the window's perspective stack.
-		PlatformUI.getWorkbench().showPerspective(E4_PERSP_ID, window);
-
-		// Switch to a different perspective so the e4 perspective is no longer active.
-		PlatformUI.getWorkbench().showPerspective(PERSP_ID, window);
-
-		// Now switch back via EPartService.switchPerspective — the code path that
-		// triggers WorkbenchPage.selectionHandler and the potential "local copy" log.
+		// Capture log messages across all perspective operations so we detect a
+		// "local copy" that might be produced during the initial showPerspective call,
+		// not only during the later switchPerspective call.
 		List<String> logMessages = new ArrayList<>();
 		ILogListener listener = (status, plugin) -> logMessages.add(status.getMessage());
 		Platform.addLogListener(listener);
 		try {
+			// Open the e4 perspective — clones the snippet and adds it to the stack.
+			PlatformUI.getWorkbench().showPerspective(E4_PERSP_ID, window);
+
+			// Switch to a different perspective so the e4 perspective is no longer active.
+			PlatformUI.getWorkbench().showPerspective(PERSP_ID, window);
+
+			// Switch back via EPartService.switchPerspective — the code path that
+			// triggers WorkbenchPage.selectionHandler and the potential "local copy" log.
 			EPartService partService = window.getService(EPartService.class);
 			partService.switchPerspective(E4_PERSP_ID);
 		} finally {
@@ -133,6 +135,6 @@ public class PerspectiveNoClassTest {
 		}
 		assertFalse(
 				logMessages.stream().anyMatch(msg -> msg != null && msg.contains("local copy")),
-				"Switching to an e4 perspective via EPartService should not produce a 'local copy' log message");
+				"Opening or switching to an e4 perspective should not produce a 'local copy' log message");
 	}
 }
