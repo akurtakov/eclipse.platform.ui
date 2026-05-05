@@ -86,7 +86,8 @@ import org.junit.platform.suite.api.Suite;
 	 PerspectiveExtensionReaderTest.class,
 	 ModeledPageLayoutTest.class,
 	 WorkbenchPluginTest.class,
-	 CloseAllHandlerTest.class
+	 CloseAllHandlerTest.class,
+	 PerspectiveNoClassTest.class
 })
 public class ApiTestSuite {
 
