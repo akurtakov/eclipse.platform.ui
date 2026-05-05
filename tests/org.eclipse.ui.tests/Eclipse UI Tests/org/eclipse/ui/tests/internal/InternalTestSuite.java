@@ -70,6 +70,7 @@ import org.junit.platform.suite.api.Suite;
 	LargeFileLimitsPreferenceHandlerTest.class,
 	WorkbookEditorsHandlerTest.class,
 	ScopeAreaTest.class,
-		MarkerTypeTests.class
+		MarkerTypeTests.class,
+	WorkbenchPageFixOrphanPerspectiveTest.class
 })
 public class InternalTestSuite {}
