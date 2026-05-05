@@ -64,6 +64,7 @@ import org.junit.platform.suite.api.Suite;
 	FileEditorMappingTest.class,
 	WorkbenchSiteProgressServiceModelTagsTest.class,
 	WorkbenchPageTest.class,
+	WorkbenchPageFixOrphanPerspectiveTest.class,
 	SaveablesListTest.class,
 	Bug540297WorkbenchPageFindViewTest.class,
 	Bug549139Test.class,
