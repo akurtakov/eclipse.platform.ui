@@ -17,7 +17,13 @@
         </children>
       </children>
     </elements>
-    <elements xsi:type="advanced:Perspective" xmi:id="_E4TestPerspSnippet" elementId="org.eclipse.ui.tests.api.E4Perspective" label="E4 Test Perspective"/>
+    <elements xsi:type="advanced:Perspective" xmi:id="_E4TestPerspSnippet" elementId="org.eclipse.ui.tests.api.E4Perspective" label="E4 Test Perspective">
+      <children xsi:type="basic:PartSashContainer" xmi:id="_E4TestPerspSash" elementId="org.eclipse.ui.tests.api.E4Perspective.sash" horizontal="true">
+        <children xsi:type="basic:PartStack" xmi:id="_E4TestPerspStack" elementId="org.eclipse.ui.tests.api.E4Perspective.stack">
+          <children xsi:type="basic:Part" xmi:id="_E4TestPerspPart" elementId="org.eclipse.ui.tests.api.E4Perspective.part" contributionURI="bundleclass://org.eclipse.ui.tests/org.eclipse.ui.tests.e4.E4Part" label="E4 Test View" closeable="true"/>
+        </children>
+      </children>
+    </elements>
   </fragments>
   <fragments xsi:type="fragment:StringModelFragment" xmi:id="_FzAhAC05Ee6-nc55BrYmhA" featurename="descriptors" parentElementId="org.eclipse.e4.legacy.ide.application">
     <elements xsi:type="basic_1:PartDescriptor" xmi:id="_IQpoIC05Ee6-nc55BrYmhA" elementId="org.eclipse.ui.tests.partdescriptor.e4testpart" label="E4UndoRedoTestPart" allowMultiple="true" closeable="true" contributionURI="bundleclass://org.eclipse.ui.tests/org.eclipse.ui.tests.e4.E4UndoRedoTestPart"/>
