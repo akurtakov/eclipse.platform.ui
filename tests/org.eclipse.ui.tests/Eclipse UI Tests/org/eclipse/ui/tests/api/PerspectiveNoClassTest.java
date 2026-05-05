@@ -14,11 +14,19 @@
 package org.eclipse.ui.tests.api;
 
 import static org.eclipse.ui.tests.harness.util.UITestUtil.openTestWindow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.core.runtime.ILogListener;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.WorkbenchException;
 import org.eclipse.ui.tests.harness.util.CloseTestWindowsExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -27,6 +35,10 @@ import org.junit.jupiter.api.extension.RegisterExtension;
  * Tests that a perspective registered in {@code org.eclipse.ui.perspectives}
  * without a {@code class} attribute can be opened successfully and receives the
  * default layout (editor area only).
+ *
+ * <p>Also tests that an e4 perspective (defined as a model snippet rather than
+ * via the 3.x extension point) does not produce a "local copy" log message
+ * when opened.
  */
 public class PerspectiveNoClassTest {
 
@@ -35,6 +47,12 @@ public class PerspectiveNoClassTest {
 	 * attribute.
 	 */
 	public static final String PERSP_ID = "org.eclipse.ui.tests.api.NoClassPerspective";
+
+	/**
+	 * The id of the e4 perspective defined as a model snippet in fragment.e4xmi
+	 * (no {@code org.eclipse.ui.perspectives} extension point registration).
+	 */
+	public static final String E4_PERSP_ID = "org.eclipse.ui.tests.api.E4Perspective";
 
 	@RegisterExtension
 	public CloseTestWindowsExtension closeTestWindows = new CloseTestWindowsExtension();
@@ -58,7 +76,7 @@ public class PerspectiveNoClassTest {
 		IWorkbenchWindow window = openTestWindow(PERSP_ID);
 		IWorkbenchPage page = window.getActivePage();
 		assertNotNull(page, "Expected an active page");
-		assertEquals(PERSP_ID, page.getPerspective().getId(),
+		assertTrue(PERSP_ID.equals(page.getPerspective().getId()),
 				"Active perspective should be the no-class perspective");
 	}
 
@@ -72,7 +90,33 @@ public class PerspectiveNoClassTest {
 		IWorkbenchPage page = window.getActivePage();
 		assertNotNull(page, "Expected an active page");
 		// The default layout should show the editor area.
-		assertEquals(true, page.isEditorAreaVisible(),
+		assertTrue(page.isEditorAreaVisible(),
 				"Editor area should be visible in the default layout");
+	}
+
+	/**
+	 * Verifies that opening an e4 perspective (defined as a model snippet in
+	 * fragment.e4xmi, without a 3.x extension-point registration) does NOT produce
+	 * a "local copy" log message.
+	 *
+	 * <p>Before the fix, the {@code WorkbenchPage.fixOrphanPerspective()} method
+	 * was called for such perspectives because their descriptor could not be found
+	 * in the registry, causing an INFO log entry of the form
+	 * {@code "Perspective with name '...' and id '...' has been made into a local copy"}.
+	 */
+	@Test
+	public void testE4PerspectiveDoesNotLogLocalCopy() throws WorkbenchException {
+		List<String> logMessages = new ArrayList<>();
+		ILogListener listener = (status, plugin) -> logMessages.add(status.getMessage());
+		Platform.addLogListener(listener);
+		try {
+			IWorkbenchWindow window = openTestWindow();
+			PlatformUI.getWorkbench().showPerspective(E4_PERSP_ID, window);
+		} finally {
+			Platform.removeLogListener(listener);
+		}
+		assertFalse(
+				logMessages.stream().anyMatch(msg -> msg != null && msg.contains("local copy")),
+				"Opening an e4 perspective should not produce a 'local copy' log message");
 	}
 }
