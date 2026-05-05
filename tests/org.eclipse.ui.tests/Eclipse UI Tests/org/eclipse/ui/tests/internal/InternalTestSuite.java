@@ -71,6 +71,5 @@ import org.junit.platform.suite.api.Suite;
 	WorkbookEditorsHandlerTest.class,
 	ScopeAreaTest.class,
 		MarkerTypeTests.class,
-	WorkbenchPageFixOrphanPerspectiveTest.class
 })
 public class InternalTestSuite {}

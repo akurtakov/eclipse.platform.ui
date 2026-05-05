@@ -120,13 +120,13 @@ public class PerspectiveNoClassTest {
 		ILogListener listener = (status, plugin) -> logMessages.add(status.getMessage());
 		Platform.addLogListener(listener);
 		try {
-			// Open the e4 perspective — clones the snippet and adds it to the stack.
+			// Open the e4 perspective -- clones the snippet and adds it to the stack.
 			PlatformUI.getWorkbench().showPerspective(E4_PERSP_ID, window);
 
 			// Switch to a different perspective so the e4 perspective is no longer active.
 			PlatformUI.getWorkbench().showPerspective(PERSP_ID, window);
 
-			// Switch back via EPartService.switchPerspective — the code path that
+			// Switch back via EPartService.switchPerspective -- the code path that
 			// triggers WorkbenchPage.selectionHandler and the potential "local copy" log.
 			EPartService partService = window.getService(EPartService.class);
 			partService.switchPerspective(E4_PERSP_ID);
