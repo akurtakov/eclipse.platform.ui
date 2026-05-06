@@ -432,10 +432,13 @@ public class ThemeEngine implements IThemeEngine {
 			}
 		}
 		// Theme not found (e.g. it was uninstalled); fall back to default
-		ILog.of(ThemeEngine.class)
-				.warn("Theme '" + themeId + "' not found; falling back to default theme."); //$NON-NLS-1$ //$NON-NLS-2$
 		if (!E4_DEFAULT_THEME_ID.equals(themeId)) {
+			ILog.of(ThemeEngine.class)
+					.warn("Theme '" + themeId + "' not found; falling back to default theme."); //$NON-NLS-1$ //$NON-NLS-2$
 			setTheme(E4_DEFAULT_THEME_ID, restore);
+		} else {
+			ILog.of(ThemeEngine.class)
+					.warn("Default theme '" + themeId + "' not found."); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
